@@ -13,6 +13,10 @@ public class Producto {
         importeTotal = precio * cantidad;
     }
 
+    private void actualizaTotal(){
+        this.importeTotal = this.cantidad * this.precio;
+    }
+
     public String getNombre() {
         return nombre;
     }
@@ -27,6 +31,7 @@ public class Producto {
 
     public void setPrecio(double precio) {
         this.precio = precio;
+        actualizaTotal();
     }
 
     public int getCantidad() {
@@ -35,6 +40,7 @@ public class Producto {
 
     public void setCantidad(int cantidad) {
         this.cantidad = cantidad;
+        actualizaTotal();
     }
 
     public double getImporteTotal() {

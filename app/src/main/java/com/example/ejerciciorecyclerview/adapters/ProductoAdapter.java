@@ -2,13 +2,14 @@ package com.example.ejerciciorecyclerview.adapters;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -44,7 +45,7 @@ public class ProductoAdapter extends RecyclerView.Adapter<ProductoAdapter.Produc
     @Override
     public void onBindViewHolder(@NonNull ProductoVH holder, int position) {
         Producto producto = objects.get(position);
-        holder.txtNombre.setText(producto.getNombre());
+        holder.lblNombre.setText(producto.getNombre());
         holder.txtCantidad.setText(String.valueOf(producto.getCantidad()));
         
         holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -61,6 +62,29 @@ public class ProductoAdapter extends RecyclerView.Adapter<ProductoAdapter.Produc
             @Override
             public void onClick(View view) {
                 eliminarProducto("Quieres eliminar el producto?", holder.getAdapterPosition()).show();
+            }
+        });
+
+        holder.txtCantidad.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                int cantidad;
+                try {
+                    cantidad = Integer.parseInt(editable.toString());
+                }catch (NumberFormatException ex){
+                    cantidad = 0;
+                }
+                producto.setCantidad(cantidad);
             }
         });
 
@@ -120,11 +144,12 @@ public class ProductoAdapter extends RecyclerView.Adapter<ProductoAdapter.Produc
     }
 
     public class ProductoVH extends RecyclerView.ViewHolder {
-        TextView txtNombre, txtCantidad;
+        TextView lblNombre;
+        EditText txtCantidad;
         ImageButton btnEliminar;
         public ProductoVH(@NonNull View itemView) {
             super(itemView);
-            txtNombre = itemView.findViewById(R.id.txtNombreProductoModelView);
+            lblNombre = itemView.findViewById(R.id.txtNombreProductoModelView);
             txtCantidad = itemView.findViewById(R.id.txtCantidadProductoModelView);
             btnEliminar = itemView.findViewById(R.id.btnEliminarProductoModelView);
         }

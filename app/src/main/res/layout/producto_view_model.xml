@@ -44,14 +44,13 @@
                     android:text="Cantidad:"
                     android:textSize="20sp" />
 
-                <TextView
+                <EditText
                     android:id="@+id/txtCantidadProductoModelView"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_gravity="start"
                     android:layout_weight="5"
                     android:padding="5dp"
-                    android:text="TextView"
                     android:textSize="20sp" />
             </LinearLayout>
 
