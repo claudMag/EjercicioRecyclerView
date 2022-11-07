@@ -1,6 +1,7 @@
 package com.example.ejerciciorecyclerview;
 
 import android.content.DialogInterface;
+import android.content.res.Configuration;
 import android.graphics.Point;
 import android.os.Bundle;
 
@@ -8,6 +9,7 @@ import com.example.ejerciciorecyclerview.adapters.ProductoAdapter;
 import com.example.ejerciciorecyclerview.modelos.Producto;
 import com.google.android.material.snackbar.Snackbar;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -30,6 +32,7 @@ import android.widget.Toast;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -49,8 +52,15 @@ public class MainActivity extends AppCompatActivity {
 
         listaProductos = new ArrayList<>();
 
+        int columnas;
+        //HORIZONTAL --> 2
+        //VERTICAL --> 1
+        //DESDE LAS CONFIGURACIONES DE LA ACTIVIDAD --> orientation //PORTRAIT(V)/ LANDSCAPE(H)
+
+        columnas = getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT ? 1 : 2;
+
         adapter = new ProductoAdapter(listaProductos, R.layout.producto_view_model, this);
-        layoutManager = new GridLayoutManager(this,1);
+        layoutManager = new GridLayoutManager(this,columnas);
         binding.contentMain.contenedor.setAdapter(adapter);
         binding.contentMain.contenedor.setLayoutManager(layoutManager);
 
@@ -66,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
 
     private AlertDialog crearProducto() {
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setTitle("CREAR PRODUCTO NUEVO");
+        builder.setTitle(getString(R.string.alert_title_crear));
         builder.setCancelable(false);
 
         View contenido = LayoutInflater.from(MainActivity.this).inflate(R.layout.add_producto_alert_dialog, null);
@@ -116,8 +126,8 @@ public class MainActivity extends AppCompatActivity {
 
         builder.setView(contenido);
 
-        builder.setNegativeButton("CANCELAR", null);
-        builder.setPositiveButton("AGREGAR", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(R.string.btn_alert_cancel, null);
+        builder.setPositiveButton(R.string.btn_alert_crear, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 if (!txtImporte.getText().toString().isEmpty()
@@ -139,4 +149,28 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Se dispara ANTES de que se elimine la actividad
+     * @param outState -> guardo los datos
+     */
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        //para insertar la lista en este bundle el producto tiene que ser serializable
+        super.onSaveInstanceState(outState);
+        outState.putSerializable("LISTA", listaProductos);
+    }
+
+    /**
+     * Se dispara DESPUÉS de crear la actividad de nuevo
+     * @param savedInstanceState -> recupero los datos
+     */
+
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        ArrayList<Producto> temp = (ArrayList<Producto>) savedInstanceState.getSerializable("LISTA");
+        listaProductos.addAll(temp);
+        adapter.notifyItemRangeInserted(0, listaProductos.size());
+    }
 }

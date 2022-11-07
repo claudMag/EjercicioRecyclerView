@@ -10,14 +10,17 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.ejerciciorecyclerview.MainActivity;
 import com.example.ejerciciorecyclerview.R;
 import com.example.ejerciciorecyclerview.modelos.Producto;
 
+import java.text.NumberFormat;
 import java.util.List;
 
 public class ProductoAdapter extends RecyclerView.Adapter<ProductoAdapter.ProductoVH> {
@@ -54,14 +57,14 @@ public class ProductoAdapter extends RecyclerView.Adapter<ProductoAdapter.Produc
                 /*Al presionar sobre un elemento abrirá un AlertDialog que nos mostrará la información
             completa del artículo y este nos permitirá modificar la cantidad o el precio, nunca el
             nombre.*/
-                mostrarModificarProducto(holder.getAdapterPosition()).show();
+                updateProducto(producto, holder.getAdapterPosition()).show();
             }
         });
 
         holder.btnEliminar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                eliminarProducto("Quieres eliminar el producto?", holder.getAdapterPosition()).show();
+                eliminarProducto( holder.getAdapterPosition()).show();
             }
         });
 
@@ -90,9 +93,9 @@ public class ProductoAdapter extends RecyclerView.Adapter<ProductoAdapter.Produc
 
     }
 
-    private AlertDialog eliminarProducto(String texto, int posicion) {
+    private AlertDialog eliminarProducto(int posicion) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle(texto);
+        builder.setTitle("Quieres eliminar el producto?");
         builder.setCancelable(false);
         builder.setNegativeButton("CANCELAR", null);
         builder.setPositiveButton("ELIMINAR", new DialogInterface.OnClickListener() {
@@ -107,35 +110,84 @@ public class ProductoAdapter extends RecyclerView.Adapter<ProductoAdapter.Produc
         return builder.create();
     }
 
-    private AlertDialog mostrarModificarProducto(int position) {
+    private AlertDialog updateProducto(Producto producto, int adapterPosition) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle("INFORMACIÓN PRODUCTO");
-        View contenido = LayoutInflater.from(context).inflate(R.layout.edit_producto_alert_dialog, null);
-        TextView txtNombre = contenido.findViewById(R.id.lblNombreEditProducto);
-        EditText txtPrecio = contenido.findViewById(R.id.txtPrecioEditProducto);
-        EditText txtCantidad = contenido.findViewById(R.id.txtCantidadEditProducto);
-        TextView txtImporteTotal = contenido.findViewById(R.id.lblImporteTotalEditProducto);
+        builder.setTitle("CREAR PRODUCTO NUEVO");
+        builder.setCancelable(false);
 
-        txtNombre.setText(objects.get(position).getNombre());
-        txtPrecio.setText(String.valueOf(objects.get(position).getPrecio()));
-        txtCantidad.setText(String.valueOf(objects.get(position).getCantidad()));
-        txtImporteTotal.setText(String.valueOf(objects.get(position).getImporteTotal()));
+        View contenido = LayoutInflater.from(context).inflate(R.layout.add_producto_alert_dialog, null);
+        EditText txtNombre = contenido.findViewById(R.id.txtNombreAddProducto);
+        EditText txtImporte = contenido.findViewById(R.id.txtPrecioAddProducto);
+        EditText txtCantidad = contenido.findViewById(R.id.txtCantidadAddProducto);
+        TextView lblTotal = contenido.findViewById(R.id.txtImporteTotalAddProducto);
+
+        txtNombre.setText(producto.getNombre());
+        txtCantidad.setText(String.valueOf(producto.getCantidad()));
+        txtImporte.setText(String.valueOf(producto.getPrecio()));
+
+        /**
+         * Al modificar un cuadro de texto
+         * charsequence --> envia el contenido que habia antes del cambio
+         */
+
+        TextWatcher textWatcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            /**
+             * al mnodificar un cuadro de texto
+             * @param charSequence --> evia el texto actual despues de la modificacion
+             */
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            /**
+             * se dispara al terminar la modificacion
+             * @param editable -> envia el contenido final del cuadro de texto
+             */
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                try {
+                    int cantidad = Integer.parseInt(txtCantidad.getText().toString());
+                    double precio = Double.parseDouble(txtImporte.getText().toString());
+                    //para poner el signo del euro o del dolar(dependiendo de tu configuracion)
+                    NumberFormat numberFormat = NumberFormat.getCurrencyInstance();
+                    lblTotal.setText(numberFormat.format(cantidad*precio));
+                }catch (NumberFormatException ex){}
+            }
+        };
+
+        txtCantidad.addTextChangedListener(textWatcher);
+        txtImporte.addTextChangedListener(textWatcher);
 
         builder.setView(contenido);
-        builder.setCancelable(false);
-        builder.setNegativeButton("CERRAR", null);
+
+        builder.setNegativeButton("CANCELAR", null);
         builder.setPositiveButton("ACTUALIZAR", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                Producto producto = new Producto(txtNombre.getText().toString(),
-                        Double.parseDouble(txtPrecio.getText().toString()),
-                        Integer.parseInt(txtCantidad.getText().toString()));
-                objects.set(position, producto);
-                notifyItemChanged(position);
+                if (!txtImporte.getText().toString().isEmpty()
+                        && !txtImporte.getText().toString().isEmpty()
+                        && !txtImporte.getText().toString().isEmpty()){
+                    Producto producto = new Producto(txtNombre.getText().toString(),
+                            Double.parseDouble(txtImporte.getText().toString()),
+                            Integer.parseInt(txtCantidad.getText().toString()));
+                    objects.set(adapterPosition, producto);
+                    notifyItemChanged(adapterPosition);
+
+                }
+                else{
+                    Toast.makeText(context, "Faltan datos", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
         return builder.create();
+
     }
 
     @Override

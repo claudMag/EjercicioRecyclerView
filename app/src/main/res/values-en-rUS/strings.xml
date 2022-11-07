@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">EjercicioRecyclerView</string>
+    <string name="alert_title_crear">Create new product</string>
+    <string name="hint_nombre_producto">Product name</string>
+    <string name="hint_cantidad_producto">Product quantity</string>
+    <string name="hint_precio_producto">Product price</string>
+    <string name="btn_alert_cancel">Cancel</string>
+    <string name="btn_alert_crear">Create</string>
+</resources>
