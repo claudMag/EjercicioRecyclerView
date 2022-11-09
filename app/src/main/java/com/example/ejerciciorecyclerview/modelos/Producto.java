@@ -1,6 +1,8 @@
 package com.example.ejerciciorecyclerview.modelos;
 
-public class Producto {
+import java.io.Serializable;
+
+public class Producto implements Serializable {
     private String nombre;
     private double precio;
     private int cantidad;
@@ -11,6 +13,10 @@ public class Producto {
         this.precio = precio;
         this.cantidad = cantidad;
         importeTotal = precio * cantidad;
+    }
+
+    private void actualizaTotal(){
+        this.importeTotal = this.cantidad * this.precio;
     }
 
     public String getNombre() {
@@ -27,6 +33,7 @@ public class Producto {
 
     public void setPrecio(double precio) {
         this.precio = precio;
+        actualizaTotal();
     }
 
     public int getCantidad() {
@@ -35,6 +42,7 @@ public class Producto {
 
     public void setCantidad(int cantidad) {
         this.cantidad = cantidad;
+        actualizaTotal();
     }
 
     public double getImporteTotal() {

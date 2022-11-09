@@ -9,14 +9,14 @@
         android:id="@+id/txtNombreAddProducto"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Nombre"
+        android:hint="@string/hint_nombre_producto"
         android:padding="5dp" />
 
     <EditText
         android:id="@+id/txtPrecioAddProducto"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Precio"
+        android:hint="@string/hint_cantidad_producto"
         android:inputType="numberDecimal"
         android:padding="5dp" />
 
@@ -24,8 +24,13 @@
         android:id="@+id/txtCantidadAddProducto"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Cantidad"
+        android:hint="@string/hint_precio_producto"
         android:inputType="number"
         android:padding="5dp" />
+
+    <TextView
+        android:id="@+id/txtImporteTotalAddProducto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
 </LinearLayout>
