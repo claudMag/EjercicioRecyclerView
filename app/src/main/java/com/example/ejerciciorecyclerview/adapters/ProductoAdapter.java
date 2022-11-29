@@ -2,6 +2,7 @@ package com.example.ejerciciorecyclerview.adapters;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -18,7 +19,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.ejerciciorecyclerview.MainActivity;
 import com.example.ejerciciorecyclerview.R;
+import com.example.ejerciciorecyclerview.configuraciones.Constantes;
 import com.example.ejerciciorecyclerview.modelos.Producto;
+import com.google.gson.Gson;
 
 import java.text.NumberFormat;
 import java.util.List;
@@ -29,10 +32,16 @@ public class ProductoAdapter extends RecyclerView.Adapter<ProductoAdapter.Produc
     private int resource;
     private Context context;
 
+    private SharedPreferences spDatos;
+    private Gson gson;
+
     public ProductoAdapter(List<Producto> objects, int resource, Context context) {
         this.objects = objects;
         this.resource = resource;
         this.context = context;
+
+        spDatos = context.getSharedPreferences(Constantes.DATOS, Context.MODE_PRIVATE);
+        this.gson = new Gson();
     }
 
     @NonNull
@@ -103,6 +112,7 @@ public class ProductoAdapter extends RecyclerView.Adapter<ProductoAdapter.Produc
             public void onClick(DialogInterface dialogInterface, int i) {
                 objects.remove(posicion);
                 notifyItemRemoved(posicion);
+                guardarDatos();
             }
         });
 
@@ -178,6 +188,8 @@ public class ProductoAdapter extends RecyclerView.Adapter<ProductoAdapter.Produc
                             Integer.parseInt(txtCantidad.getText().toString()));
                     objects.set(adapterPosition, producto);
                     notifyItemChanged(adapterPosition);
+                    guardarDatos();
+
 
                 }
                 else{
@@ -193,6 +205,13 @@ public class ProductoAdapter extends RecyclerView.Adapter<ProductoAdapter.Produc
     @Override
     public int getItemCount() {
         return objects.size();
+    }
+
+    private void guardarDatos(){
+        String productoS = gson.toJson(objects);
+        SharedPreferences.Editor editor = spDatos.edit();
+        editor.putString(Constantes.LISTA, productoS);
+        editor.apply();
     }
 
     public class ProductoVH extends RecyclerView.ViewHolder {

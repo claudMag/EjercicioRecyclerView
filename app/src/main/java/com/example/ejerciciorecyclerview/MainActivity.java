@@ -1,11 +1,13 @@
 package com.example.ejerciciorecyclerview;
 
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Point;
 import android.os.Bundle;
 
 import com.example.ejerciciorecyclerview.adapters.ProductoAdapter;
+import com.example.ejerciciorecyclerview.configuraciones.Constantes;
 import com.example.ejerciciorecyclerview.modelos.Producto;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -23,6 +25,8 @@ import android.view.View;
 
 
 import com.example.ejerciciorecyclerview.databinding.ActivityMainBinding;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import android.view.Menu;
 import android.view.MenuItem;
@@ -30,6 +34,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.lang.reflect.Type;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +46,9 @@ public class MainActivity extends AppCompatActivity {
     private ProductoAdapter adapter;
     private RecyclerView.LayoutManager layoutManager;
 
+    private SharedPreferences spDatos;
+    private Gson gson;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,6 +57,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         setSupportActionBar(binding.toolbar);
+
+        spDatos = getSharedPreferences(Constantes.DATOS, MODE_PRIVATE);
+        gson = new Gson();
 
         listaProductos = new ArrayList<>();
 
@@ -63,6 +74,8 @@ public class MainActivity extends AppCompatActivity {
         layoutManager = new GridLayoutManager(this,columnas);
         binding.contentMain.contenedor.setAdapter(adapter);
         binding.contentMain.contenedor.setLayoutManager(layoutManager);
+
+        cargarDatos();
 
         binding.fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -93,6 +106,7 @@ public class MainActivity extends AppCompatActivity {
         TextWatcher textWatcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
             }
 
             /**
@@ -138,6 +152,7 @@ public class MainActivity extends AppCompatActivity {
                             Integer.parseInt(txtCantidad.getText().toString()));
                     listaProductos.add(0,producto);
                     adapter.notifyItemInserted(0);
+                    guardarDatos();
                 }
                 else{
                     Toast.makeText(MainActivity.this, "Faltan datos", Toast.LENGTH_SHORT).show();
@@ -173,4 +188,27 @@ public class MainActivity extends AppCompatActivity {
         listaProductos.addAll(temp);
         adapter.notifyItemRangeInserted(0, listaProductos.size());
     }
+
+    private void guardarDatos(){
+        String productosListS = gson.toJson(listaProductos);
+        SharedPreferences.Editor editor = spDatos.edit();
+        editor.putString(Constantes.LISTA, productosListS);
+        editor.apply();
+
+    }
+
+    private void cargarDatos(){
+        //() se define {} se instancia
+        Type tipoDatos = new TypeToken< ArrayList<Producto> >(){}.getType();
+        //s1 puede ser null pero luego tengo que hacer un if si es distinto de nulo
+        if (spDatos.contains(Constantes.LISTA)){
+            String datosCodificados = spDatos.getString(Constantes.LISTA, "[]");
+            ArrayList<Producto> temp = gson.fromJson(datosCodificados, tipoDatos);
+            listaProductos.clear();
+            listaProductos.addAll(temp);
+            adapter.notifyItemRangeInserted(0, temp.size());
+        }
+
+    }
+
 }
